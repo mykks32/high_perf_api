@@ -1,0 +1,14 @@
+config:
+  target: "http://localhost:8000"
+  phases:
+    - duration: 60       # run for 60 seconds
+      arrivalRate: 1000    # 20 new requests per second
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Get Orders Concurrent Test"
+    flow:
+      - get:
+          url: "/api/orders?page=1&limit=50"

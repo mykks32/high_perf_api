@@ -1,0 +1,405 @@
+{
+  "name": "high-perf-api",
+  "version": "1",
+  "items": [
+    {
+      "type": "folder",
+      "name": "data-record",
+      "filename": "data-record",
+      "seq": 2,
+      "examples": [],
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "data-record",
+          "seq": 2
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "Data history",
+          "filename": "Data history.bru",
+          "seq": 1,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/data/stats",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "data ingest",
+          "filename": "data ingest.bru",
+          "seq": 4,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/data/ingest",
+            "method": "POST",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "json",
+              "json": "{\n  \"batch\": [\n    {\n      \"source\": \"source_1\",\n      \"value\": 12.5,\n      \"payload\": { \"info\": \"payload_1\" }\n    },\n    {\n      \"source\": \"source_2\",\n      \"value\": 23.7,\n      \"payload\": { \"info\": \"payload_2\" }\n    },\n    {\n      \"source\": \"source_3\",\n      \"value\": 45.2,\n      \"payload\": { \"info\": \"payload_3\" }\n    },\n    {\n      \"source\": \"source_4\",\n      \"value\": 31.8,\n      \"payload\": { \"info\": \"payload_4\" }\n    },\n    {\n      \"source\": \"source_5\",\n      \"value\": 56.1,\n      \"payload\": { \"info\": \"payload_5\" }\n    },\n    {\n      \"source\": \"source_6\",\n      \"value\": 19.4,\n      \"payload\": { \"info\": \"payload_6\" }\n    },\n    {\n      \"source\": \"source_7\",\n      \"value\": 67.9,\n      \"payload\": { \"info\": \"payload_7\" }\n    },\n    {\n      \"source\": \"source_8\",\n      \"value\": 42.3,\n      \"payload\": { \"info\": \"payload_8\" }\n    },\n    {\n      \"source\": \"source_9\",\n      \"value\": 28.6,\n      \"payload\": { \"info\": \"payload_9\" }\n    },\n    {\n      \"source\": \"source_10\",\n      \"value\": 15.0,\n      \"payload\": { \"info\": \"payload_10\" }\n    }\n  ]\n}",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "data stats",
+          "filename": "data stats.bru",
+          "seq": 3,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/data/history",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "ws",
+          "name": "queued requst",
+          "filename": "queued requst.bru",
+          "seq": 4,
+          "settings": {},
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseWsUrl}}",
+            "method": "",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "ws",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": [],
+              "ws": [
+                {
+                  "name": "message 1",
+                  "type": "json",
+                  "content": "{}"
+                }
+              ]
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "none"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "orders",
+      "filename": "orders",
+      "seq": 3,
+      "examples": [],
+      "root": {
+        "request": {
+          "auth": {
+            "mode": "inherit"
+          }
+        },
+        "meta": {
+          "name": "orders",
+          "seq": 3
+        }
+      },
+      "items": [
+        {
+          "type": "http",
+          "name": "get Order By Id",
+          "filename": "get Order By Id.bru",
+          "seq": 1,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/orders/0c23571e-a9a7-4f34-9c43-5564d2820c19",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "get Orders",
+          "filename": "get Orders.bru",
+          "seq": 2,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/orders?page=1&limit=500",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "limit",
+                "value": "500",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "get Search",
+          "filename": "get Search.bru",
+          "seq": 5,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/orders/search/?q=Laptop Pro 15&page=1&limit=50",
+            "method": "GET",
+            "headers": [],
+            "params": [
+              {
+                "name": "q",
+                "value": "Laptop Pro 15",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "enabled": true
+              },
+              {
+                "name": "limit",
+                "value": "50",
+                "type": "query",
+                "enabled": true
+              }
+            ],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "get Stats",
+          "filename": "get Stats.bru",
+          "seq": 4,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/orders/stats",
+            "method": "GET",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "none",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        },
+        {
+          "type": "http",
+          "name": "create order",
+          "filename": "create order.bru",
+          "seq": 3,
+          "settings": {
+            "encodeUrl": true,
+            "timeout": 0
+          },
+          "tags": [],
+          "examples": [],
+          "request": {
+            "url": "{{baseUrl}}/orders",
+            "method": "POST",
+            "headers": [],
+            "params": [],
+            "body": {
+              "mode": "json",
+              "json": "[\n  {\n    \"userIdfdfadf\": \"user_001\",\n    \"productNameadf\": \"Laptop Pro 15\",\n    \"description\": \"High-end laptop with 32GB RAM\",\n    \"totalAmount\": 1850.75,\n    \"status\": \"pending\"\n  },\n  {\n    \"userId\": \"user_002\",\n    \"productName\": \"Wireless Headphones\",\n    \"description\": \"Noise-cancelling model\",\n    \"totalAmount\": 199.99,\n    \"status\": \"completed\"\n  },\n  {\n    \"userId\": \"user_003\",\n    \"productName\": \"Smartphone X\",\n    \"description\": \"256GB storage\",\n    \"totalAmount\": 999.5,\n    \"status\": \"pending\"\n  },\n  {\n    \"userId\": \"user_004\",\n    \"productName\": \"External SSD 1TB\",\n    \"description\": \"USB-C high-speed\",\n    \"totalAmount\": 120.0,\n    \"status\": \"cancelled\"\n  }\n]",
+              "formUrlEncoded": [],
+              "multipartForm": [],
+              "file": []
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "",
+            "docs": "",
+            "auth": {
+              "mode": "inherit"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "activeEnvironmentUid": "tImGMjDpYUhdfHVip7wMY",
+  "environments": [
+    {
+      "variables": [
+        {
+          "name": "baseUrl",
+          "value": "http://localhost:8000/api",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        },
+        {
+          "name": "baseWsUrl",
+          "value": "ws://localhost:8000",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        }
+      ],
+      "name": "high-perf-api"
+    }
+  ],
+  "brunoConfig": {
+    "version": "1",
+    "name": "high-perf-api",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ],
+    "size": 0.0027685165405273438,
+    "filesCount": 11
+  }
+}

@@ -1,0 +1,21 @@
+config:
+  target: "http://localhost:8000"
+  phases:
+    - duration: 5         # 10 seconds
+      arrivalRate: 1000   # 1000 requests per second
+      name: "High throughput test"
+
+  defaults:
+    headers:
+      Content-Type: application/json
+
+scenarios:
+  - name: "Send data at high speed"
+    flow:
+      - post:
+          url: "/api/data/ingest"
+          json:
+            source: "source_1"
+            value: 5
+            payload:
+              info: "payload_1"

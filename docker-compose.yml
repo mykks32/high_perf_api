@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  # ------------------- Postgres -------------------
+  postgres-high-perf:
+    image: postgres:17
+    container_name: postgres-enquiry
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: high_perf_db
+    volumes:
+      - pg_enquiry_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - high_perf_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ------------------- Redis -------------------
+  redis-high-perf:
+    image: redis:7
+    container_name: redis-high-perf
+    networks:
+      - high_perf_net
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--requirepass", "redis", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ------------------- High Perf API Service -------------------
+  high-perf-api:
+    build: .
+    container_name: high-perf-api
+    env_file:
+      - .env
+    volumes:
+      - high_perf_api:/app/data
+    depends_on:
+      postgres-high-perf:
+        condition: service_healthy
+      redis-high-perf:
+        condition: service_healthy
+    networks:
+      - high_perf_net
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+# ------------------- Volumes -------------------
+volumes:
+  pg_enquiry_data:
+  redis_data:
+  high_perf_api:
+
+
+# ------------------- Networks -------------------
+networks:
+  high_perf_net:
+    driver: bridge
