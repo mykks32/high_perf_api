@@ -11,11 +11,6 @@ export class SwaggerService {
                 version: "1.0.0",
                 description: "API documentation for Data Records and Orders",
             },
-            servers: [
-                {
-                    url: "http://localhost:8000/api",
-                },
-            ],
         },
         apis: ["./src/routes/**/*.ts"],
     };
