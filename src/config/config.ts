@@ -41,6 +41,10 @@ export class ConfigService {
     get redisUrl(): string {
         return this.env.REDIS_URL;
     }
+
+    get nodeEnv(): "development" | "production" {
+        return this.env.NODE_ENV;
+    }
 }
 
 export const config = new ConfigService();

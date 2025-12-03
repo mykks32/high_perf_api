@@ -1,19 +1,27 @@
-import swaggerJsdoc from "swagger-jsdoc";
+import swaggerJsdoc, { Options } from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Application } from "express";
+import { config } from "../config/config";
 
 export class SwaggerService {
-    private readonly options = {
-        definition: {
-            openapi: "3.0.3",
-            info: {
-                title: "High-Performance API",
-                version: "1.0.0",
-                description: "API documentation for Data Records and Orders",
+    private readonly options: Options;
+    private readonly isProd: boolean;
+
+    constructor() {
+        this.isProd = config.nodeEnv === "production";
+
+        this.options = {
+            definition: {
+                openapi: "3.0.3",
+                info: {
+                    title: "High-Performance API",
+                    version: "1.0.0",
+                    description: "API documentation for Data Records and Orders",
+                },
             },
-        },
-        apis: ["./src/routes/**/*.ts"],
-    };
+            apis: [this.isProd ? "./dist/routes/**/*.js" : "./src/routes/**/*.ts"],
+        };
+    }
 
     public setupSwagger(app: Application, path: string = "/api/docs") {
         const specs = swaggerJsdoc(this.options);
