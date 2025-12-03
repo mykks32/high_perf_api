@@ -9,9 +9,7 @@ export class SwaggerService {
 
     constructor() {
         this.isProd = config.nodeEnv === "production";
-        console.log("isProd", this.isProd);
 
-        console.log("what", this.isProd ? "./src/routes/**/*.js" : "./src/routes/**/*.ts")
         this.options = {
             definition: {
                 openapi: "3.0.3",
@@ -21,7 +19,7 @@ export class SwaggerService {
                     description: "API documentation for Data Records and Orders",
                 },
             },
-            apis: [this.isProd ? "./src/routes/**/*.js" : "./src/routes/**/*.ts"],
+            apis: [this.isProd ? "./dist/src/routes/**/*.js" : "./src/routes/**/*.ts"],
         };
     }
 
