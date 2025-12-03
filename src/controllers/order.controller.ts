@@ -9,11 +9,10 @@ import {
     getOrdersSchema,
     searchOrdersSchema
 } from "../schemas/order.schema";
-import {PaginatedOrders} from "../interfaces/order.interface";
+import {CachedOrdersPayload, PaginatedOrders} from "../interfaces/order.interface";
 import {ZodError} from "zod";
 import {StatusCodes} from "http-status-codes";
 import {redis, RedisClient} from "../utils/redis";
-import {id} from "zod/locales";
 
 const {
     OK,
@@ -29,6 +28,8 @@ class OrderController {
     private readonly redis: RedisClient
     private readonly CACHE_TTL = 300;
     private readonly CACHE_PREFIX = 'orders';
+    private readonly HOT_PAGES = 5;
+    private readonly PAGE_SIZE = 1000;
 
     constructor() {
         this.orderService = new OrderService();
@@ -39,36 +40,38 @@ class OrderController {
         try {
             // Validate
             const parsedQuery: GetOrdersInput = getOrdersSchema.parse(req.query);
+            const page = parsedQuery.page || 1;
+            const limit = parsedQuery.limit || 100;
+            const finalLimit = limit > this.PAGE_SIZE ? this.PAGE_SIZE : limit;
 
             // Cache
-            const cacheKey = `${this.CACHE_PREFIX}:${JSON.stringify(parsedQuery)}`
-            const cachedData = await redis.get(cacheKey);
-            if (cachedData) {
-                this.logger.info(`Cache hit for key: ${cacheKey}`);
-                const parsed = JSON.parse(cachedData);
-                return res.status(OK).json({
-                    ...parsed,
-                    cached: true,
-                });
+            if (page <= this.HOT_PAGES) {
+                const cacheKey = `${this.CACHE_PREFIX}:page:${page}`;
+                const cachedData = await this.redis.get(cacheKey);
+
+                if (cachedData) {
+                    this.logger.info(`Cache hit for key: ${cacheKey}`);
+                    const parsed: CachedOrdersPayload = JSON.parse(cachedData);
+
+                    const limitedData = parsed.data.slice(0, finalLimit); // limit override supported
+
+                    return res.status(OK).json({
+                        success: true,
+                        data: limitedData,
+                        page,
+                        limit: finalLimit,
+                        total: parsed.total,
+                        cached: true,
+                    });
+                }
             }
 
             // Service
             const orders: PaginatedOrders = await this.orderService.getOrders(parsedQuery.page, parsedQuery.limit);
 
-            const responsePayload = {
-                success: true,
-                data: orders.data,
-                page: orders.page,
-                limit: orders.limit,
-                total: orders.total,
-            };
-
-            // Cache result
-            await this.redis.set(cacheKey, JSON.stringify(responsePayload), this.CACHE_TTL);
-            this.logger.info(`Cached orders with key: ${cacheKey}`);
-
             return res.status(OK).json({
-                ...responsePayload,
+                success: true,
+                ...orders,
                 cached: false,
             });
         } catch (error) {

@@ -17,3 +17,10 @@ export interface PaginatedOrders {
     limit: number;
     total: number;
 }
+
+export interface CachedOrdersPayload {
+    data: IOrder[];
+    page: number;
+    limit: number;
+    total: number;
+}

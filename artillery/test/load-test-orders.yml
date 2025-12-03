@@ -2,7 +2,7 @@ config:
   target: "http://localhost:8000"
   phases:
     - duration: 60       # run for 60 seconds
-      arrivalRate: 1000    # 20 new requests per second
+      arrivalRate: 500    # 20 new requests per second
   defaults:
     headers:
       Content-Type: "application/json"

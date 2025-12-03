@@ -1,17 +1,15 @@
 import { Logger } from "../logger";
 import { DataRecordRepository } from "../repositories/data-record.repository";
 import { DataRecord } from "../entities/data-record.entity";
-import { dataQueue, DataQueue } from "../queue/dataQueue";
+import { getDataQueue } from "../queue/dataQueue";
 import { redis } from "../utils/redis";
 import crypto from "crypto";
 
 export class DataRecordService {
     private readonly logger = new Logger(DataRecordService.name);
-    private readonly queue: DataQueue;
     private readonly repo: DataRecordRepository;
 
     constructor() {
-        this.queue = dataQueue;
         this.repo = new DataRecordRepository();
     }
 
@@ -23,7 +21,7 @@ export class DataRecordService {
         record.payload = payload || null;
         record.status = "pending";
 
-        await this.queue.addRecord(record);
+        await getDataQueue().addRecord(record);
 
         this.logger.log(`Ingesting record: ${record.id}`);
         return record;
@@ -40,7 +38,7 @@ export class DataRecordService {
             return r;
         });
 
-        await this.queue.addBatch(records);
+        await getDataQueue().addBatch(records);
 
         this.logger.log(`Ingesting batch: ${records.length}`);
         return records;
