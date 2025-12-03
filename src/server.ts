@@ -5,12 +5,14 @@ import { redis } from "./utils/redis";
 import { loggerMiddleware } from "./middleware/loggerMiddleware";
 import { bullBoard} from "./queue/bullBoard";
 import rateLimiter from "./middleware/rateLimiter.middleware"
+import {swaggerService} from "./swagger/swaggerService";
 
 export class AppServer {
     public app: express.Application;
 
     constructor() {
         this.app = express();
+        this.setupSwagger();
         this.setupBullBoard()
         this.setupMiddleware();
         this.setupRoutes();
@@ -35,6 +37,11 @@ export class AppServer {
     private setupBullBoard() {
         this.app.use("/api/queues", bullBoard.getRouter());
     }
+
+    private setupSwagger() {
+        swaggerService.setupSwagger(this.app, "/api/docs");
+    }
+
 
     public async initialize() {
         await database.initialize();

@@ -17,6 +17,8 @@ class Routes {
          * /health:
          *   get:
          *     summary: Health check
+         *     tags:
+         *       - Health Check
          *     responses:
          *       200:
          *         description: API is running
