@@ -1,17 +1,25 @@
 import Redis from "ioredis";
-import {config} from "../config/config";
-import {Logger} from "../logger";
+import { getConfig } from "../config/config";
+import { Logger } from "../logger";
 
 export class RedisClient {
+    private static instance: RedisClient;
     private readonly logger = new Logger(RedisClient.name);
     public client: Redis;
 
-    constructor() {
-        this.client = new Redis(config.redisUrl, {
+    private constructor() {
+        this.client = new Redis(getConfig().redisUrl, {
             maxRetriesPerRequest: null,
         });
 
         this.client.on("error", (err) => this.logger.error("Redis Error", err));
+    }
+
+    public static getInstance(): RedisClient {
+        if (!RedisClient.instance) {
+            RedisClient.instance = new RedisClient();
+        }
+        return RedisClient.instance;
     }
 
     async initialize() {
@@ -25,7 +33,10 @@ export class RedisClient {
         }
     }
 
-    // Helper Method
+    getClient(): Redis {
+        return this.client;
+    }
+
     async set(key: string, value: string, expireSeconds?: number) {
         if (expireSeconds) {
             await this.client.set(key, value, "EX", expireSeconds);
@@ -55,5 +66,5 @@ export class RedisClient {
     }
 }
 
-// Export singleton
-export const redis = new RedisClient();
+export const redis = RedisClient.getInstance();
+export const getRedisClient = () => RedisClient.getInstance();
