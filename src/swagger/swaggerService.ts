@@ -9,7 +9,9 @@ export class SwaggerService {
 
     constructor() {
         this.isProd = config.nodeEnv === "production";
+        console.log("isProd", this.isProd);
 
+        console.log("what", this.isProd ? "./src/routes/**/*.js" : "./src/routes/**/*.ts")
         this.options = {
             definition: {
                 openapi: "3.0.3",
