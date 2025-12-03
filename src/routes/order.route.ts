@@ -14,7 +14,7 @@ class OrderRoutes {
     private initialize() {
         /**
          * @swagger
-         * /orders:
+         * /api/orders:
          *   get:
          *     summary: Get all orders
          *     tags:
@@ -40,7 +40,7 @@ class OrderRoutes {
 
         /**
          * @swagger
-         * /orders/stats:
+         * /api/orders/stats:
          *   get:
          *     summary: Get statistics of orders
          *     tags:
