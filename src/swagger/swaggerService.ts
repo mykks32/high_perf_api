@@ -27,6 +27,7 @@ export class SwaggerService {
         const specs = swaggerJsdoc(this.options);
         app.use(path, swaggerUi.serve, swaggerUi.setup(specs));
     }
+
 }
 
 export const swaggerService = new SwaggerService();
