@@ -41,7 +41,7 @@ services:
     build: .
     container_name: high-perf-api
     env_file:
-      - .env
+      - .env.prod
     volumes:
       - high_perf_api:/app/data
     depends_on:
@@ -52,7 +52,7 @@ services:
     networks:
       - high_perf_net
     ports:
-      - "3000:3000"
+      - "8000:8000"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]

@@ -14,7 +14,7 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "rootDir": ".",
-    "outDir": "./build",
+    "outDir": "./dist",
     "baseUrl": ".",
   }
 }

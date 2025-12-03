@@ -29,4 +29,4 @@ RUN npm ci --only=production
 COPY --from=build /app/dist ./dist
 
 # Start app
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/index.js"]
