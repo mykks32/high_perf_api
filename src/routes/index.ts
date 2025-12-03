@@ -14,7 +14,7 @@ class Routes {
         // Health
         /**
          * @swagger
-         * /health:
+         * /api/health:
          *   get:
          *     summary: Health check
          *     tags:

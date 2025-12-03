@@ -53,7 +53,7 @@ class OrderRoutes {
 
         /**
          * @swagger
-         * /orders/search:
+         * /api/orders/search:
          *   get:
          *     summary: Search orders
          *     tags:
@@ -84,7 +84,7 @@ class OrderRoutes {
 
         /**
          * @swagger
-         * /orders/{id}:
+         * /api/orders/{id}:
          *   get:
          *     summary: Get order by ID
          *     tags:
@@ -104,7 +104,7 @@ class OrderRoutes {
 
         /**
          * @swagger
-         * /orders:
+         * /api/orders:
          *   post:
          *     summary: Create new orders
          *     tags:

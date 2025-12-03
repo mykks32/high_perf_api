@@ -14,7 +14,7 @@ class DataRecordRoute {
     private initialize() {
         /**
          * @swagger
-         * /data/ingest:
+         * /api/data/ingest:
          *   post:
          *     summary: Ingest data (single OR batch)
          *     tags:
@@ -50,7 +50,7 @@ class DataRecordRoute {
 
         /**
          * @swagger
-         * /data/history:
+         * /api/data/history:
          *   get:
          *     summary: Get history of ingested data
          *     tags:
@@ -63,7 +63,7 @@ class DataRecordRoute {
 
         /**
          * @swagger
-         * /data/stats:
+         * /api/data/stats:
          *   get:
          *     summary: Get statistics of ingested data
          *     tags:
