@@ -18,13 +18,27 @@ This project demonstrates enterprise-level backend architecture with:
 - **Load Testing**: Artillery
 - **Containerization**: Docker & Docker Compose
 
+## Deployment
+
+- **Deployed At**:  [https://high-perf-api.onrender.com](https://high-perf-api.onrender.com)
+
+- **Swagger / API Docs**: [https://high-perf-api.onrender.com/api/docs](https://high-perf-api.onrender.com/api/docs)  
+- **Bull Board (Job Queue Dashboard)**: [https://high-perf-api.onrender.com/api/queues](https://high-perf-api.onrender.com/api/queues)
+
+
 ## Project Structure
 
 ```
 .
 ├── Dockerfile                # Container configuration
 ├── docker-compose.yml        # Multi-container orchestration
+├── .env.example              # Example environment variables for reference
+├── .github                     # GitHub workflows
+│   └── workflows
+│       └── deploy-high-perf-api.yml   # CI/CD workflow for deployment
+├── .gitignore                  # Files/folders ignored by Git
 ├── package.json              # Dependencies
+├── package-lock.json           # Exact versions of installed dependencies
 ├── tsconfig.json             # TypeScript configuration
 ├── index.ts                  # Application entry point
 │
@@ -59,6 +73,8 @@ This project demonstrates enterprise-level backend architecture with:
 │   ├── queue/                # Background jobs
 │   │   ├── dataQueue.ts
 │   │   └── bullBoard.ts      # Bull job dashboard
+│   ├── swagger/              # Swagger/OpenAPI setup
+│   │   └── swaggerService.ts
 │   ├── workers/              # Job processors
 │   │   └── dataWorker.ts
 │   ├── ws/                   # WebSocket server
@@ -93,7 +109,8 @@ This project demonstrates enterprise-level backend architecture with:
 │       └── orders/           # Orders API test results
 │
 ├── logs/                     # Application logs
-    └── 2025-12-02.log
+    ├── 2025-12-02.log
+    └── 2025-12-03.log
 ```
 
 ## Getting Started

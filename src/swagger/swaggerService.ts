@@ -19,7 +19,7 @@ export class SwaggerService {
                     description: "API documentation for Data Records and Orders",
                 },
             },
-            apis: [this.isProd ? "./dist/routes/**/*.js" : "./src/routes/**/*.ts"],
+            apis: [this.isProd ? "./src/routes/**/*.js" : "./src/routes/**/*.ts"],
         };
     }
 
