@@ -1,14 +1,14 @@
 import swaggerJsdoc, { Options } from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Application } from "express";
-import { config } from "../config/config";
+import { getConfig } from "../config/config";
 
 export class SwaggerService {
     private readonly options: Options;
     private readonly isProd: boolean;
 
     constructor() {
-        this.isProd = config.nodeEnv === "production";
+        this.isProd = getConfig().nodeEnv === "production";
 
         this.options = {
             definition: {

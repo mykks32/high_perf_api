@@ -2,18 +2,18 @@ import { ExpressAdapter } from "@bull-board/express";
 import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import express from "express";
-
-import {dataQueue, DataQueue} from "./dataQueue";
-import {Logger} from "../logger";
+import { Logger } from "../logger";
+import { DataQueue } from "./dataQueue";
 
 export class BullBoard {
+    private static instance: BullBoard;
     private readonly serverAdapter: ExpressAdapter;
     private readonly dataQueue: DataQueue;
     private readonly logger = new Logger(BullBoard.name);
 
-    constructor() {
+    private constructor() {
         try {
-            this.dataQueue = dataQueue;
+            this.dataQueue = DataQueue.getInstance();
             this.serverAdapter = new ExpressAdapter();
             this.serverAdapter.setBasePath("/api/queues");
 
@@ -28,7 +28,15 @@ export class BullBoard {
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : String(err);
             this.logger.error("Failed to initialize BullBoard", errorMsg);
+            throw err;
         }
+    }
+
+    public static getInstance(): BullBoard {
+        if (!BullBoard.instance) {
+            BullBoard.instance = new BullBoard();
+        }
+        return BullBoard.instance;
     }
 
     public getRouter(): express.Router {
@@ -36,4 +44,4 @@ export class BullBoard {
     }
 }
 
-export const bullBoard = new BullBoard();
+export const getBullBoard = () => BullBoard.getInstance();

@@ -1,21 +1,35 @@
-import dotenv from "dotenv";
 import { envSchema, EnvSchema } from "./env.schema";
 import { Logger } from "../logger";
 
-dotenv.config({ path: ".env", quiet: true });
-
 export class ConfigService {
+    private static instance: ConfigService;
     private readonly logger = new Logger(ConfigService.name);
     private env: EnvSchema;
+    private initialized = false;
 
-    constructor() {
+    private constructor() {
         const parsed = envSchema.safeParse(process.env);
         if (!parsed.success) {
             this.logger.error("Invalid environment variables", parsed.error.message);
             process.exit(1);
         }
         this.env = parsed.data;
-        this.logger.log("Environment variables validated");
+    }
+
+    public static getInstance(): ConfigService {
+        if (!ConfigService.instance) {
+            ConfigService.instance = new ConfigService();
+        }
+        return ConfigService.instance;
+    }
+
+    public static logValidation(): void {
+        if (!ConfigService.instance?.initialized) {
+            new Logger(ConfigService.name).log("Environment variables validated");
+            if (ConfigService.instance) {
+                ConfigService.instance.initialized = true;
+            }
+        }
     }
 
     get port(): number {
@@ -47,4 +61,6 @@ export class ConfigService {
     }
 }
 
-export const config = new ConfigService();
+// Export direct instance for convenience
+export const config = ConfigService.getInstance();
+export const getConfig = () => ConfigService.getInstance();
