@@ -43,6 +43,8 @@ This project demonstrates enterprise-level backend architecture with:
 ├── index.ts                  # Application entry point
 │
 ├── src/
+│   ├── cache/               # Redis Preloader
+│   │   ├── orderCachePreloader.ts
 │   ├── config/               # Environment and configuration
 │   │   ├── config.ts
 │   │   └── env.schema.ts
