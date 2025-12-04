@@ -4,6 +4,8 @@ import { DataRecord } from "../entities/data-record.entity";
 import { redis } from "../utils/redis";
 import { AppDataSource } from "../database/data-source";
 import { WebSocketServer } from "../ws/webSocketServer";
+import {database} from "../database/database";
+import cluster from "cluster";
 
 export class DataWorker {
     private readonly logger = new Logger(DataWorker.name);
@@ -16,13 +18,11 @@ export class DataWorker {
                 this.logger.log(`Processing record ${record.id}`);
 
                 try {
-                    if (Math.random() < 0.7) {
-                        throw new Error(`Simulated failure for record ${record.id}`);
-                    }
-
+                    const workerId = cluster.worker?.id
                     record.value = record.value + Math.random();
                     record.status = "processed";
 
+                    await database().initialize()
                     await AppDataSource.getRepository(DataRecord).save(record);
 
                     await redis.incr("data_count");
@@ -31,6 +31,7 @@ export class DataWorker {
                     this.wsServer.broadcast({
                         event: "data:processed",
                         data: record,
+                        workerId
                     });
 
                     this.logger.log(`Record ${record.id} processed and broadcasted`);
@@ -42,9 +43,9 @@ export class DataWorker {
             },
             {
                 connection: redis.client,
-                concurrency: 5,
+                concurrency: 2,
                 limiter: {
-                    max: 50,
+                    max: 2,
                     duration: 1000
                 },
             }

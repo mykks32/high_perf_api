@@ -8,7 +8,6 @@ export class WebSocketServer {
 
     constructor(server: http.Server) {
         try {
-            // Create raw WebSocket server
             this.wss = new WSServer({ server });
 
             this.wss.on("connection", (socket: WebSocket) => {

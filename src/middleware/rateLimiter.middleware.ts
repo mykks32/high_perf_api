@@ -7,7 +7,7 @@ export class RateLimiter {
     private constructor() {
         this.limiter = rateLimit({
             windowMs: 1000,
-            limit: 1000,
+            limit: 10,
             standardHeaders: true,
             legacyHeaders: false,
             message: "Too many requests from this IP, please try again later.",
