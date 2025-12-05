@@ -11,7 +11,7 @@ import {swaggerService} from "./swagger/swaggerService";
 import {WebSocketServer} from "./ws/webSocketServer";
 import {DataWorker} from "./workers/dataWorker";
 import {Logger} from "./logger";
-import {config} from "./config/config";
+import {config, ConfigService} from "./config/config";
 
 export class AppServer {
     public app: express.Application;
@@ -59,6 +59,7 @@ export class AppServer {
             await Database.getInstance().initialize();
             this.dataWorker = new DataWorker();
         } else {
+            ConfigService.logValidation();
             await redis.initialize();
             await database().initialize()
 
