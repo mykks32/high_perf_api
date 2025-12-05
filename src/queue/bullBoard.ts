@@ -24,7 +24,7 @@ export class BullBoard {
                 serverAdapter: this.serverAdapter
             });
 
-            this.logger.log("BullBoard initialized successfully");
+            this.logger.info("BullBoard initialized successfully");
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : String(err);
             this.logger.error("Failed to initialize BullBoard", errorMsg);

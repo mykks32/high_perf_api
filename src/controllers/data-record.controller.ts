@@ -16,7 +16,6 @@ class DataRecordController {
     }
 
     public ingest = async (req: Request, res: Response) => {
-        console.log(req.body);
         try {
             if (Array.isArray(req.body.batch)) {
                 const batch = ingestBatchSchema.parse(req.body.batch);
@@ -27,10 +26,8 @@ class DataRecordController {
                     data: records.map(r => r.id),
                 });
             }
-            console.log("parsing")
 
             const single = ingestSingleSchema.parse(req.body);
-            console.log(single);
             const { source, value, payload } = single;
 
             const record = await this.service.ingestSingle(source, value, payload);

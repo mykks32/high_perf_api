@@ -11,10 +11,10 @@ export class WebSocketServer {
             this.wss = new WSServer({ server });
 
             this.wss.on("connection", (socket: WebSocket) => {
-                this.logger.log("Client connected");
+                this.logger.info("Client connected");
 
                 socket.on("message", (message: string) => {
-                    this.logger.log(`Received message: ${message}`);
+                    this.logger.info(`Received message: ${message}`);
                     this.broadcast({
                         from: "client",
                         message: message.toString(),
@@ -23,7 +23,7 @@ export class WebSocketServer {
                 });
 
                 socket.on("close", () => {
-                    this.logger.log("Client disconnected");
+                    this.logger.info("Client disconnected");
                 });
 
                 socket.on("error", (err) => {
@@ -35,7 +35,7 @@ export class WebSocketServer {
                 this.logger.error("WebSocketServer error", err);
             });
 
-            this.logger.log("WebSocketServer initialized");
+            this.logger.info("WebSocketServer initialized");
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : String(err);
             this.logger.error("Failed to initialize WebSocketServer", errorMsg);
@@ -45,7 +45,7 @@ export class WebSocketServer {
 
     // Broadcast helper function
     public broadcast(data: any) {
-        const message = JSON.stringify(data);
+        const message = typeof data === "string" ? data : JSON.stringify(data);
         this.wss.clients.forEach((client) => {
             if (client.readyState === client.OPEN) {
                 client.send(message);

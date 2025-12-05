@@ -29,7 +29,7 @@ class OrderController {
     private readonly CACHE_TTL = 300;
     private readonly CACHE_PREFIX = 'orders';
     private readonly HOT_PAGES = 5;
-    private readonly PAGE_SIZE = 1000;
+    private readonly PAGE_SIZE = 100;
 
     constructor() {
         this.orderService = new OrderService();
@@ -38,42 +38,44 @@ class OrderController {
 
     public getOrders = async (req: Request, res: Response) => {
         try {
-            // Validate
+            // Validate query
             const parsedQuery: GetOrdersInput = getOrdersSchema.parse(req.query);
             const page = parsedQuery.page || 1;
             const limit = parsedQuery.limit || 100;
             const finalLimit = limit > this.PAGE_SIZE ? this.PAGE_SIZE : limit;
 
-            // Cache
-            if (page <= this.HOT_PAGES) {
-                const cacheKey = `${this.CACHE_PREFIX}:page:${page}`;
-                const cachedData = await this.redis.get(cacheKey);
+            // Cache key per page + limit
+            const cacheKey = `${this.CACHE_PREFIX}:page:${page}:limit:${finalLimit}`;
 
-                if (cachedData) {
-                    this.logger.info(`Cache hit for key: ${cacheKey}`);
-                    const parsed: CachedOrdersPayload = JSON.parse(cachedData);
+            // 1️⃣ Try cache first
+            const cachedData = await this.redis.get(cacheKey);
+            if (cachedData) {
+                this.logger.info(`Cache hit for key: ${cacheKey}`);
+                const parsed: CachedOrdersPayload = JSON.parse(cachedData);
 
-                    const limitedData = parsed.data.slice(0, finalLimit); // limit override supported
-
-                    return res.status(OK).json({
-                        success: true,
-                        data: limitedData,
-                        page,
-                        limit: finalLimit,
-                        total: parsed.total,
-                        cached: true,
-                    });
-                }
+                return res.status(OK).json({
+                    success: true,
+                    data: parsed.data,
+                    page,
+                    limit: finalLimit,
+                    total: parsed.total,
+                    cached: true,
+                });
             }
 
-            // Service
-            const orders: PaginatedOrders = await this.orderService.getOrders(parsedQuery.page, parsedQuery.limit);
+            // 2️⃣ Fetch from service (DB)
+            const orders: PaginatedOrders = await this.orderService.getOrders(page, finalLimit);
 
+            // 3️⃣ Cache the result (fire-and-forget)
+            this.redis.set(cacheKey, JSON.stringify(orders), this.CACHE_TTL);
+
+            // 4️⃣ Return response
             return res.status(OK).json({
                 success: true,
                 ...orders,
                 cached: false,
             });
+
         } catch (error) {
             if (error instanceof ZodError) {
                 return res.status(BAD_REQUEST).json({
@@ -83,7 +85,7 @@ class OrderController {
                 });
             }
 
-            console.error(error);
+            this.logger.error(error);
             return res.status(INTERNAL_SERVER_ERROR).json({
                 success: false,
                 message: 'Something went wrong',

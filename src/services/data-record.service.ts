@@ -23,7 +23,7 @@ export class DataRecordService {
 
         await getDataQueue().addRecord(record);
 
-        this.logger.log(`Ingesting record: ${record.id}`);
+        this.logger.info(`Ingesting record: ${record.id}`);
         return record;
     }
 
@@ -40,7 +40,7 @@ export class DataRecordService {
 
         await getDataQueue().addBatch(records);
 
-        this.logger.log(`Ingesting batch: ${records.length}`);
+        this.logger.info(`Ingesting batch: ${records.length}`);
         return records;
     }
 
@@ -49,7 +49,7 @@ export class DataRecordService {
         const sum = parseFloat((await redis.get("data_sum")) || "0");
         const avg = count > 0 ? sum / count : 0;
 
-        this.logger.log(`Stats fetched: count=${count}, sum=${sum}, avg=${avg}`);
+        this.logger.info(`Stats fetched: count=${count}, sum=${sum}, avg=${avg}`);
         return { count, sum, avg };
     }
 

@@ -25,7 +25,7 @@ export class Database {
         try {
             if (!this.dataSource.isInitialized) {
                 await this.dataSource.initialize();
-                this.logger.log("Database connected successfully");
+                this.logger.info("Database connected successfully");
             }
 
             this.initialized = true;

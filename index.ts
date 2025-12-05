@@ -1,81 +1,44 @@
 import dotenv from "dotenv";
+dotenv.config({ path: ".env", quiet: true });
 
-dotenv.config({path: ".env", quiet: true});
-
-import {AppServer} from "./src/server";
-import {getConfig, ConfigService} from "./src/config/config";
-import {Logger} from "./src/logger";
-import http from "http";
-import {WebSocketServer} from "./src/ws/webSocketServer";
-import {DataWorker} from "./src/workers/dataWorker";
-import {redis} from "./src/utils/redis";
-import {Database} from "./src/database/database";
+import cluster from "cluster";
+import os from "os";
+import { Logger } from "./src/logger";
+import { AppServer } from "./src/server";
 
 class Bootstrap {
-    private logger: Logger;
-
-    constructor() {
-        this.logger = new Logger(Bootstrap.name);
-    }
+    private readonly logger = new Logger(Bootstrap.name);
+    private CPU_COUNT = Math.min(4,os.cpus().length);
+    private server: AppServer;
 
     public async start() {
-        try {
-            await this.startServer();
-        } catch (err) {
-            this.logger.error("Bootstrap failed", err);
-            process.exit(1);
+        if (cluster.isPrimary) {
+            this.logger.info(`MASTER PID: ${process.pid}`);
+            await this.startMaster();
+
+            process.on("SIGINT", () => this.server.shutdown());
+            process.on("SIGTERM", () => this.server.shutdown());
+        } else {
+            this.logger.info(`WORKER PID: ${process.pid}`);
+            await this.startWorker();
+
+            process.on("SIGINT", () => this.server.shutdown());
+            process.on("SIGTERM", () => this.server.shutdown());
         }
     }
 
-    private async startServer() {
-        ConfigService.logValidation();
+    private async startMaster() {
+        this.server = new AppServer(false);
+        await this.server.initialize();
 
-        this.logger.log(`Starting API Server (PID: ${process.pid})`);
-
-        const server = new AppServer();
-        await server.initialize();
-
-        const config = getConfig();
-        const port = config.port ?? 8000;
-
-        const httpServer = http.createServer(server.app);
-
-        // WebSocket
-        const wsServer = new WebSocketServer(httpServer);
-
-        // BullMQ Worker
-        new DataWorker(wsServer);
-
-        // Start HTTP server
-        httpServer.listen(port, () => {
-            this.logger.log(`API Server running on port ${port}`);
-        });
-
-        process.on("SIGTERM", () => this.shutdown("SIGTERM", httpServer));
-        process.on("SIGINT", () => this.shutdown("SIGINT", httpServer));
+        for (let i = 0; i < this.CPU_COUNT; i++) {
+            cluster.fork();
+        }
     }
 
-    private async shutdown(signal: string, httpServer: http.Server) {
-        this.logger.log(`${signal} received, shutting down...`);
-
-        httpServer.close(async () => {
-
-            try {
-                await redis.client.quit();
-            } catch {
-            }
-
-            try {
-                const db = Database.getInstance();
-                if (await db.initialize()) {
-                    await db.dataSource.destroy();
-                }
-            } catch {
-            }
-
-            this.logger.log("Shutdown complete.");
-            process.exit(0);
-        });
+    private async startWorker() {
+        this.server = new AppServer(true);
+        await this.server.initialize();
     }
 }
 

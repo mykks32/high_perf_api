@@ -35,16 +35,16 @@ export class OrderSeeder {
     public async run() {
         try {
             await AppDataSource.initialize();
-            this.logger.log("Database connected. Seeding 10,000 orders...");
+            this.logger.info("Database connected. Seeding 10,000 orders...");
 
             for (let i = 0; i < this.totalRecords; i += this.chunkSize) {
                 const batchCount = Math.min(this.chunkSize, this.totalRecords - i);
                 const batch = this.generateOrdersBatch(batchCount);
                 await this.orderRepo.insert(batch);
-                this.logger.log(`Inserted ${i + batchCount} orders`);
+                this.logger.info(`Inserted ${i + batchCount} orders`);
             }
 
-            this.logger.log("Seeding completed!");
+            this.logger.info("Seeding completed!");
             await AppDataSource.destroy();
         } catch (err) {
             this.logger.error("Seeding failed:", err);
