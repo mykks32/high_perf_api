@@ -5,14 +5,29 @@ import { Logger } from "../logger";
 export class RedisClient {
     private static instance: RedisClient;
     private readonly logger = new Logger(RedisClient.name);
-    public client: Redis;
+    private readonly pool: Redis[] = [];
+    private readonly poolSize = 10;
+    private index = 0;
+
+    public subscriber: Redis;
+    public publisher: Redis;
 
     private constructor() {
-        this.client = new Redis(getConfig().redisUrl, {
-            maxRetriesPerRequest: null,
-        });
+        for (let i = 0; i < this.poolSize; i++) {
+            const client = new Redis(getConfig().redisUrl, {
+                maxRetriesPerRequest: null,
+            });
 
-        this.client.on("error", (err) => this.logger.error("Redis Error", err));
+            client.on("error", (err) => this.logger.error(`Redis Error [client-${i}]`, err));
+
+            this.pool.push(client);
+        }
+
+        this.publisher = new Redis(getConfig().redisUrl);
+        this.subscriber = new Redis(getConfig().redisUrl);
+
+        this.publisher.on("error", (err) => this.logger.error("Redis Pub Error", err));
+        this.subscriber.on("error", (err) => this.logger.error("Redis Sub Error", err));
     }
 
     public static getInstance(): RedisClient {
@@ -24,8 +39,19 @@ export class RedisClient {
 
     async initialize() {
         try {
-            await this.client.ping();
-            this.logger.log("Redis connected successfully");
+            await Promise.all(this.pool.map(async (r) => {
+                if (r.status !== "ready" && r.status !== "connecting") {
+                    await r.connect();
+                }
+            }));
+
+            if (this.publisher.status !== "ready" && this.publisher.status !== "connecting") {
+                await this.publisher.connect();
+            }
+
+            if (this.subscriber.status !== "ready" && this.subscriber.status !== "connecting") {
+                await this.subscriber.connect();
+            }
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : String(err);
             this.logger.error("Redis connection failed", errorMsg);
@@ -33,36 +59,38 @@ export class RedisClient {
         }
     }
 
-    getClient(): Redis {
-        return this.client;
+    public getClient(): Redis {
+        const client = this.pool[this.index];
+        this.index = (this.index + 1) % this.poolSize; // Round-robin
+        return client;
     }
 
     async set(key: string, value: string, expireSeconds?: number) {
+        const client = this.getClient();
         if (expireSeconds) {
-            await this.client.set(key, value, "EX", expireSeconds);
+            await client.set(key, value, "EX", expireSeconds);
         } else {
-            await this.client.set(key, value);
+            await client.set(key, value);
         }
     }
 
     async get(key: string) {
-        return this.client.get(key);
+        return this.getClient().get(key);
     }
 
-    async del(key: string) {
-        return this.client.del(key);
+    async incrAndSum(countKey: string, sumKey: string, value: number) {
+        const pipe = this.getClient().pipeline();
+        pipe.incr(countKey);
+        pipe.incrbyfloat(sumKey, value);
+        await pipe.exec();
     }
 
-    async incr(key: string) {
-        return this.client.incr(key);
-    }
-
-    async incrByFloat(key: string, value: number) {
-        return this.client.incrbyfloat(key, value);
-    }
-
-    pipeline() {
-        return this.client.pipeline();
+    public async disconnectAll() {
+        for (const client of this.pool) {
+            client.disconnect();
+        }
+        this.publisher.disconnect();
+        this.subscriber.disconnect();
     }
 }
 
