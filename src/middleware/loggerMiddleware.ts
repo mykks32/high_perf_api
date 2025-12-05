@@ -5,8 +5,9 @@ import { Logger } from "../logger";
 export class LoggerMiddleware {
     private readonly logger = new Logger(LoggerMiddleware.name);
 
-    // Middleware function
     handle = (req: Request, res: Response, next: NextFunction): void => {
+        if (req.path.startsWith("/api/queues")) return next();
+
         const requestId = (req.headers["x-request-id"] as string) || uuidv4();
         req.headers["x-request-id"] = requestId;
         res.setHeader("x-request-id", requestId);
@@ -14,13 +15,13 @@ export class LoggerMiddleware {
         const { method, originalUrl } = req;
         const start = Date.now();
 
-        this.logger.log(`Incoming request: ${method} ${originalUrl}`, { requestId, method, path: originalUrl });
+        this.logger.info(`Incoming request: ${method} ${originalUrl}`, { requestId, method, path: originalUrl });
 
         res.on("finish", () => {
             const { statusCode } = res;
             const duration = Date.now() - start;
 
-            this.logger.log(
+            this.logger.info(
                 `${method} ${originalUrl} - Status: ${statusCode} - Duration: ${duration}ms`,
                 { requestId, statusCode, duration, method, path: originalUrl }
             );
@@ -30,7 +31,6 @@ export class LoggerMiddleware {
     };
 }
 
-// Export a single instance to use directly
 export const loggerMiddleware = (req: Request, res: Response, next: NextFunction) => {
     return new LoggerMiddleware().handle(req, res, next);
 };

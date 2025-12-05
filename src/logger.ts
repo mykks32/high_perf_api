@@ -17,12 +17,12 @@ export class Logger {
         );
 
         const logFormat = format.printf(({ timestamp, level, message, ...meta }) => {
-            const metaString = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : "";
-            return `[${timestamp}] [${this.context}] [${level.toUpperCase()}]: ${message}${metaString ? ` ${metaString}` : ""}`;
+            const metaString = Object.keys(meta).length ? JSON.stringify(meta) : "";
+            return `[${timestamp}] [PID:${process.pid}] [${this.context}] [${level.toUpperCase()}]: ${message}${metaString ? ` ${metaString}` : ""}`;
         });
 
         this.logger = createLogger({
-            level: "debug",
+            level: "error",
             format: format.combine(
                 format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
                 logFormat
@@ -34,7 +34,7 @@ export class Logger {
                         logFormat,
                         format.colorize()
                     ),
-                    level: "debug",
+                    level: "info",
                 }),
                 new transports.File({ filename: logFile, level: "debug" })
             ]
