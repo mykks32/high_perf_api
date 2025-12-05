@@ -28,7 +28,6 @@ class OrderController {
     private readonly redis: RedisClient
     private readonly CACHE_TTL = 300;
     private readonly CACHE_PREFIX = 'orders';
-    private readonly HOT_PAGES = 5;
     private readonly PAGE_SIZE = 100;
 
     constructor() {
@@ -44,10 +43,8 @@ class OrderController {
             const limit = parsedQuery.limit || 100;
             const finalLimit = limit > this.PAGE_SIZE ? this.PAGE_SIZE : limit;
 
-            // Cache key per page + limit
             const cacheKey = `${this.CACHE_PREFIX}:page:${page}:limit:${finalLimit}`;
 
-            // 1️⃣ Try cache first
             const cachedData = await this.redis.get(cacheKey);
             if (cachedData) {
                 this.logger.info(`Cache hit for key: ${cacheKey}`);
@@ -63,13 +60,10 @@ class OrderController {
                 });
             }
 
-            // 2️⃣ Fetch from service (DB)
             const orders: PaginatedOrders = await this.orderService.getOrders(page, finalLimit);
 
-            // 3️⃣ Cache the result (fire-and-forget)
-            this.redis.set(cacheKey, JSON.stringify(orders), this.CACHE_TTL);
+            await this.redis.set(cacheKey, JSON.stringify(orders), this.CACHE_TTL);
 
-            // 4️⃣ Return response
             return res.status(OK).json({
                 success: true,
                 ...orders,

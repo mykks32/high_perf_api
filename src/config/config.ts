@@ -64,3 +64,7 @@ export class ConfigService {
 // Export direct instance for convenience
 export const config = ConfigService.getInstance();
 export const getConfig = () => ConfigService.getInstance();
+
+(async () => {
+    ConfigService.logValidation();
+})();

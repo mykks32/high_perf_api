@@ -33,7 +33,7 @@ export class DataQueue {
                 removeOnComplete: { age: 3600 },
                 backoff: { type: "exponential", delay: 500 },
             });
-            this.logger.info(`Enqueued record ${record.id}`);
+            this.logger.log(`Enqueued record ${record.id}`);
         } catch (err) {
             this.logger.error(`Failed to enqueue record ${record.id}`, err);
             throw err;
