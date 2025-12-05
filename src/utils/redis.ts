@@ -16,6 +16,10 @@ export class RedisClient {
         for (let i = 0; i < this.poolSize; i++) {
             const client = new Redis(getConfig().redisUrl, {
                 maxRetriesPerRequest: null,
+                enableOfflineQueue: true,
+                lazyConnect: false,
+                connectTimeout: 5000,
+                retryStrategy: (times) => Math.min(times * 50, 2000),
             });
 
             client.on("error", (err) => this.logger.error(`Redis Error [client-${i}]`, err));
