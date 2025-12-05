@@ -11,7 +11,7 @@ export class DataQueue {
     private constructor() {
         try {
             this.queue = new Queue<DataRecord>("data-queue", { connection: redis.getClient() });
-            this.logger.log("BullMQ queue initialized");
+            this.logger.info("BullMQ queue initialized");
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : String(err);
             this.logger.error("Failed to initialize DataQueue", errorMsg);
@@ -33,7 +33,7 @@ export class DataQueue {
                 removeOnComplete: { age: 3600 },
                 backoff: { type: "exponential", delay: 500 },
             });
-            this.logger.log(`Enqueued record ${record.id}`);
+            this.logger.info(`Enqueued record ${record.id}`);
         } catch (err) {
             this.logger.error(`Failed to enqueue record ${record.id}`, err);
             throw err;
